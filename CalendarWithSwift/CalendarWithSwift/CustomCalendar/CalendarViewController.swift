@@ -33,8 +33,8 @@ class CalendarViewController: UIViewController {
     var cellIdentifier : String!
     var calendarProvider : CalendarProvider!
     var monthsString = [Any]()
-    var calendarModels = [Any]()
-    var selectedIndexes = [Any]()
+    var calendarModels: NSMutableArray = [CalendarMonthModel]() as! NSMutableArray
+    var selectedIndexes: NSMutableArray = [IndexPath]() as! NSMutableArray
     var selectedDate : Date!
     var today = Date.init()
     
@@ -157,7 +157,7 @@ class CalendarViewController: UIViewController {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell{
         
-        let cell:CalendarCollectionViewCell = calendarCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CalendarCollectionViewCell
+        var cell:CalendarCollectionViewCell = calendarCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CalendarCollectionViewCell
         
         let monthModel:CalendarMonthModel = calendarModels[indexPath.section] as! CalendarMonthModel
         
@@ -171,38 +171,89 @@ class CalendarViewController: UIViewController {
             cell.setEmptyUI()
             cell.isUserInteractionEnabled = false
         }else{
-            let dat:NSInteger = indexPath.row - emptyCount + 1
+            let day:NSInteger = indexPath.row - emptyCount + 1
             
-            cell.dateLabel.text =
+            cell.dateLabel.text = String(format:"%ld", day)
             
+            cell = self.canbeSelectCell(cell: cell, model: monthModel, day: day)
+            
+            let dateAtCell:Date = DateGenerator.getDateFrom(year: monthModel.year, month: monthModel.month, day: day)
+            
+            var dateKey:String = "end"
+            
+            if self.calendarType == .Start{
+                dateKey = "start"
+            }
+            
+            if self.isEqualDay(date: dateAtCell, compareDate: customDuration[dateKey] as? Date) && selectedIndexes.count == 0 && !selectedIndexes.contains(indexPath){
+                selectedIndexes.removeAllObjects()
+                selectedIndexes.add(indexPath)
+            }
+            
+            if cell.statusType == .calendarCollectionViewCellTypeForNormal && selectedIndexes.contains(indexPath){
+                cell.setSelectedState()
+            }
         }
-//        if (row < monthModel.emptyCellCount) {
-//            [cell setEmptyUI];
-//            [cell setUserInteractionEnabled:NO];
-//        }
-//        else {
-//            NSInteger day = indexPath.row - emptyCount + 1;
-//
-//            cell.dateLabel.text = [NSString stringWithFormat:@"%ld", (long)day];
-//
-//            [self canbeSelectCell:cell monthModel:monthModel day:day];
-//            NSDate *dateAtCell = [DateGenerator getDateFromInt:monthModel.year month:monthModel.month day:day];
-//
-//            //讀取預設日期
-//            NSString *dateKey = self.calendarType == Start? @"start":@"end";
-//
-//            if ([self isEqualDay:dateAtCell CompareDate: customDuration[dateKey]] &&
-//                selectedIndexes.count == 0 &&
-//                ![selectedIndexes containsObject:indexPath]) {
-//                [selectedIndexes removeAllObjects];
-//                [selectedIndexes addObject:indexPath];
-//            }
-//
-//            if (cell.statusType == CalendarCollectionViewCellTypeForNormal && [selectedIndexes containsObject:indexPath]) {
-//                [cell setSelectedState];
-//            }
-//        }
-//        return cell;
+        return cell
+    }
+    
+    func isEqualDay(date:Date?, compareDate:Date?) -> Bool {
+        if date == nil || compareDate == nil{
+            return false
+        }
+        
+        let cal:Calendar = Calendar.current
+        
+        var components:DateComponents = cal.dateComponents([.era,.year,.month, .day], from: date! )
+        
+        let newDate:NSDate = cal.date(from: components)! as NSDate
+        
+        components = cal.dateComponents([.era,.year,.month, .day], from: compareDate! )
+        
+        let newCompareDate:Date = cal.date(from: components)!
+        
+        return newDate.isEqual(to: newCompareDate)
+    }
+    
+    //MARK: Date Method
+    func initCalendar(){
+        
+        monthsString = DateGenerator.getMonthsNameArray()
+        
+        let components:DateComponents = DateGenerator.getDateComponentsFrom(date: firstDate)
+        
+        let year:NSInteger = components.year!
+        
+        self.reloadCalendarModels(year: year)
+    }
+    
+    func reloadCalendarModels(year:NSInteger){
+        
+        let firstDate:Date = DateGenerator.getDateFrom(year: year, month: 1, day: 1)
+        
+        self.yearLabel.text = String(format:"%ld", year)
+        
+        calendarModels.removeAllObjects()
+        
+        for i in (0...11){
+            let model:CalendarMonthModel = calendarProvider.getCalendarMonthModel(date: firstDate, offset: i)
+            calendarModels.add(model)
+        }
+        
+        calendarCollectionView.reloadData()
+        let monthInt:int? = Int(DateGenerator.getMonthString(date: Date.init())) - 1
+        
+        let indexs2 = <#value#>
+        
+        NSUInteger indexs2[] = {monthInt, 1};
+        NSIndexPath *datePath = [NSIndexPath indexPathWithIndexes:indexs2 length:2];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.calendarCollectionView scrollToItemAtIndexPath:datePath
+                atScrollPosition:UICollectionViewScrollPositionTop
+                animated:YES];
+            });
+        
     }
     
     // MARK: Btn Action
