@@ -27,7 +27,7 @@ extension CalendarVCDelegate {
     }
 }
 
-class CalendarViewController: UIViewController {
+class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource {
     
     var headerIdentifier : String!
     var cellIdentifier : String!
@@ -129,7 +129,7 @@ class CalendarViewController: UIViewController {
             return 0
         }
         
-        let monthModel:CalendarMonthModel = calendarModels[section] as! CalendarMonthModel
+        let monthModel:CalendarMonthModel = calendarModels[section] 
         
         return monthModel.totalItemCount
     }
