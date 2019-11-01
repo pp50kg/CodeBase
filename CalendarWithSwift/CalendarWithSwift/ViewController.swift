@@ -8,7 +8,27 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,CalendarVCDelegate {
+    func calendarDidSelect(_ date: Date, calendarType: CalendarType) {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: date)
+        
+        switch calendarType {
+        case .Start:
+            startDateLabel.text = dateString
+            break
+            
+        case .End:
+            endDateLabel.text = dateString
+            break
+            
+        default: break
+            
+        }
+    }
+    
     @IBOutlet weak var startDateLabel: UILabel!
     @IBOutlet weak var endDateLabel: UILabel!
     
@@ -19,19 +39,15 @@ class ViewController: UIViewController {
 
     @IBAction func openCalendarAction(_ sender: Any) {
         
-        guard let btn:UIButton = sender as? UIButton else {
-            return
-        }
-//        let calendarVC:CalendarViewController = CalendarViewController.ini
+        let btn:UIButton = sender as! UIButton
         
-//        UIButton *btn = (UIButton *)sender
-//        CalendarViewController *calendarVC = [CalendarViewController new];
-//        [calendarVC setDelegate:self];
-//        [calendarVC setCalendarType:btn.tag];
-//        [calendarVC setModalPresentationStyle:UIModalPresentationCustom];
-//        [calendarVC setModalTransitionStyle:UIModalTransitionStyleCrossDissolve];
-//        [self presentViewController:calendarVC animated:YES completion:nil];
+        let calendarVC:CalendarViewController = CalendarViewController.init()
+            calendarVC.delegate = self
+            calendarVC.calendarType = CalendarType(rawValue: btn.tag)
+            calendarVC.modalPresentationStyle = UIModalPresentationStyle.custom
+            calendarVC.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
+        
+            self.present(calendarVC, animated: true, completion: nil)
     }
-    
 }
 

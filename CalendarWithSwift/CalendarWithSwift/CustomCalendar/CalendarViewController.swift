@@ -33,8 +33,8 @@ class CalendarViewController: UIViewController {
     var cellIdentifier : String!
     var calendarProvider : CalendarProvider!
     var monthsString = [Any]()
-    var calendarModels: NSMutableArray = [CalendarMonthModel]() as! NSMutableArray
-    var selectedIndexes: NSMutableArray = [IndexPath]() as! NSMutableArray
+    var calendarModels = Array<CalendarMonthModel>()
+    var selectedIndexes = Array<IndexPath>()
     var selectedDate : Date!
     var today = Date.init()
     
@@ -186,8 +186,8 @@ class CalendarViewController: UIViewController {
             }
             
             if self.isEqualDay(date: dateAtCell, compareDate: customDuration[dateKey] as? Date) && selectedIndexes.count == 0 && !selectedIndexes.contains(indexPath){
-                selectedIndexes.removeAllObjects()
-                selectedIndexes.add(indexPath)
+                selectedIndexes.removeAll(keepingCapacity: false)
+                selectedIndexes.append(indexPath)
             }
             
             if cell.statusType == .calendarCollectionViewCellTypeForNormal && selectedIndexes.contains(indexPath){
@@ -233,27 +233,22 @@ class CalendarViewController: UIViewController {
         
         self.yearLabel.text = String(format:"%ld", year)
         
-        calendarModels.removeAllObjects()
+        calendarModels.removeAll(keepingCapacity: false)
         
         for i in (0...11){
             let model:CalendarMonthModel = calendarProvider.getCalendarMonthModel(date: firstDate, offset: i)
-            calendarModels.add(model)
+            calendarModels.append(model)
         }
         
         calendarCollectionView.reloadData()
-        let monthInt:int? = Int(DateGenerator.getMonthString(date: Date.init())) - 1
+        let monthInt:Int = Int(DateGenerator.getMonthString(date: Date.init()))! - 1
         
-        let indexs2 = <#value#>
+        let indexs2:[Int] = [monthInt, 1]
+        let datePath:IndexPath = (IndexPath.init(indexes: indexs2))
         
-        NSUInteger indexs2[] = {monthInt, 1};
-        NSIndexPath *datePath = [NSIndexPath indexPathWithIndexes:indexs2 length:2];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.calendarCollectionView scrollToItemAtIndexPath:datePath
-                atScrollPosition:UICollectionViewScrollPositionTop
-                animated:YES];
-            });
-        
+        DispatchQueue.main.async {
+            self.calendarCollectionView.scrollToItem(at: datePath, at: .top, animated: true)
+        }
     }
     
     // MARK: Btn Action
@@ -263,31 +258,41 @@ class CalendarViewController: UIViewController {
         
         var currentYear:NSInteger = firstModel.year
         
-//        if <#condition#> {
-//            <#code#>
-//        }
-        
-//        CalendarMonthModel *firstModel = [calendarModels firstObject];
-//
-//        NSInteger currentYear = firstModel.year;
-//
-//        if (currentYear > [self minYear]) {
-//            currentYear -= 1;
-//            [self reloadCalendarModels:currentYear];
-//        }
-        
+        if currentYear > self.minYear() {
+            currentYear = currentYear - 1
+            self.reloadCalendarModels(year: currentYear)
+        }
     }
     
     @IBAction func nextYearButtonTapped(_ sender: Any) {
         
+        let firstModel:CalendarMonthModel = calendarModels.first as!CalendarMonthModel
+        
+        var currentYear:NSInteger = firstModel.year
+            currentYear = currentYear + 1
+            self.reloadCalendarModels(year: currentYear)
     }
     
     @IBAction func cancelButtonTapped(_ sender: Any) {
         
-
+        let delegateMethod = delegate?.cancelSelectedDate()
+        
+        if (delegate != nil), (delegateMethod != nil) {
+            delegate!.cancelSelectedDate()
+        }
+        
+        self.dismiss(animated: true, completion: nil)
+        
         }
         
     @IBAction func okButtonTapped(_ sender: Any) {
-
+        // 沒選到要不要發動?
+        let delegateMethod = delegate?.calendarDidSelect(selectedDate, calendarType: calendarType)
+        
+        if (delegate != nil), (delegateMethod != nil) {
+            delegate!.calendarDidSelect(selectedDate, calendarType: calendarType)
+        }
+        
+        self.dismiss(animated: true, completion: nil)
         }
 }
