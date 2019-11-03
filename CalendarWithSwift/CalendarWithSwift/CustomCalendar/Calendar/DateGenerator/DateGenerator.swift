@@ -11,19 +11,15 @@ import Foundation
 struct DateGenerator {
     
     static func getDateFrom(year:Int, month:Int, day: Int) -> Date! {
-        let calendar = Calendar.autoupdatingCurrent
+        let calendar = Calendar.current
         
-        var components = DateComponents.init()
-        components.year = year
-        components.month = month
-        components.day = day
-        components.calendar = calendar
+        let dateComponents = DateComponents(calendar: calendar, year: year, month: month, day: day)
         
-        if !components.isValidDate {
+        if !dateComponents.isValidDate {
             return Date()
         }
         
-        let returnDate = calendar.date(from: components)
+        let returnDate = dateComponents.date!
         
         return returnDate
     }

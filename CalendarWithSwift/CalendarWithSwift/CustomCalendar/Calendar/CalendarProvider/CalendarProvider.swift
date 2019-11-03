@@ -9,8 +9,8 @@
 import Foundation
 
 struct CalendarProvider {
-    let selectedDate1 : DateComponents
-    let selectedDate2 : DateComponents
+//    let selectedDate1 : DateComponents
+//    let selectedDate2 : DateComponents
     
     func getCalendarMonthModel(date:Date, offset:NSInteger) -> CalendarMonthModel {
         let dateComponents = Calendar.current.dateComponents([Calendar.Component.year,Calendar.Component.month,Calendar.Component.day], from: date)

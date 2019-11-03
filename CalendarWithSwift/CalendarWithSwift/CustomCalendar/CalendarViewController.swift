@@ -90,6 +90,8 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
         
         self.registerCell()
         self.setupUI()
+        
+        calendarProvider = CalendarProvider()
         // Do any additional setup after loading the view.
     }
 
@@ -103,11 +105,11 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
         super.viewDidLayoutSubviews()
         
         // 防止跑版
-        if #available(iOS 11.0, *) {
-            containerTopConstraint.constant = 57.0
-        } else {
-            containerTopConstraint.constant = 77.0
-        }
+//        if #available(iOS 11.0, *) {
+//            containerTopConstraint.constant = 57.0
+//        } else {
+//            containerTopConstraint.constant = 77.0
+//        }
         
         self.view.layoutIfNeeded()
     }
@@ -115,7 +117,9 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
     // MARK: Setup UI
     func registerCell() {
         cellIdentifier = "DateCell"
-        calendarCollectionView.register(UINib.init(nibName: "CalendarCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
+        let nib = UINib(nibName: "CalendarCollectionViewCell", bundle: nil)
+        
+        calendarCollectionView.register(nib, forCellWithReuseIdentifier: cellIdentifier)
         
         headerIdentifier = "HeaderCell"
         calendarCollectionView.register(CalendarHeaderCollectionViewCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
