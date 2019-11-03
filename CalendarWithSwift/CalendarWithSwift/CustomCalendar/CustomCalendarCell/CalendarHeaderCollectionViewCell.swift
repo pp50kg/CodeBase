@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CalendarHeaderCollectionViewCell: UICollectionViewCell {
+class CalendarHeaderCollectionViewCell: UICollectionReusableView {
     @IBOutlet weak var monthLabel: UILabel!
     
     override func awakeFromNib() {

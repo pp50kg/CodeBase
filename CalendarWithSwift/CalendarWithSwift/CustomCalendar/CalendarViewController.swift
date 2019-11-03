@@ -27,7 +27,7 @@ extension CalendarVCDelegate {
     }
 }
 
-class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource {
+class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout {
     
     var headerIdentifier : String!
     var cellIdentifier : String!
@@ -117,12 +117,10 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
     // MARK: Setup UI
     func registerCell() {
         cellIdentifier = "DateCell"
-        let nib = UINib(nibName: "CalendarCollectionViewCell", bundle: nil)
-        
-        calendarCollectionView.register(nib, forCellWithReuseIdentifier: cellIdentifier)
+        calendarCollectionView.register(UINib(nibName: "CalendarCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
         
         headerIdentifier = "HeaderCell"
-        calendarCollectionView.register(CalendarHeaderCollectionViewCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+        calendarCollectionView.register(UINib(nibName: "CalendarHeaderCollectionViewCell", bundle: nil), forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
     }
     
     func setupUI() {
@@ -215,9 +213,7 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
         return monthModel.totalItemCount
     }
     
-    func collectionView(_ collectionView: UICollectionView,
-                        viewForSupplementaryElementOfKind kind: String,
-                        at indexPath: IndexPath) -> UICollectionReusableView{
+     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         if kind == UICollectionView.elementKindSectionHeader {
             let header:Any = calendarCollectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier, for: indexPath)
