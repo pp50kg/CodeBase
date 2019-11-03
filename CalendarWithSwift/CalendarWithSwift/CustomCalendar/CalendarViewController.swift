@@ -60,14 +60,91 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
     weak var delegate : CalendarVCDelegate?
     var calendarType : CalendarType!
     var firstDate : Date!
-    var customDuration = [String : AnyHashable]()
+    var customDuration = Dictionary<String, Date>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        if customDuration.count > 0 {
+            // 有選擇過日期
+            if customDuration.count == 2 {
+                // 起迄都選過了,依照進入點
+                let startDate:Date = customDuration["start"]!
+                let endDate:Date = customDuration["end"]!
+                
+                if calendarType == CalendarType.Start{
+                    firstDate = startDate
+                }else{
+                    firstDate = endDate
+                }
+            }else{
+                //只選過一個
+                
+                let keys = Array(customDuration.keys)
+                firstDate = customDuration[keys[0]]
+            }
+        }else{
+            // 如果沒有選擇,就從今天
+            firstDate = Date.init()
+        }
+        
+        self.registerCell()
+        self.setupUI()
         // Do any additional setup after loading the view.
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.calendarCollectionView.reloadData()
+        self.initCalendar()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        // 防止跑版
+        if #available(iOS 11.0, *) {
+            containerTopConstraint.constant = 57.0
+        } else {
+            containerTopConstraint.constant = 77.0
+        }
+        
+        self.view.layoutIfNeeded()
+    }
+    
+    // MARK: Setup UI
+    func registerCell() {
+        cellIdentifier = "DateCell"
+        calendarCollectionView.register(UINib.init(nibName: "CalendarCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: cellIdentifier)
+        
+        headerIdentifier = "HeaderCell"
+        calendarCollectionView.register(CalendarHeaderCollectionViewCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: headerIdentifier)
+    }
+    
+    func setupUI() {
+        cancelButton.setTitle("Cancel", for: .normal)
+        okButton.setTitle("Confirm", for: .normal)
+        sundayLabel.text = "Sun"
+        mondayLabel.text = "Mon"
+        tuesdayLabel.text = "Tue"
+        wednesdayLabel.text = "Wed"
+        thursdayLabel.text = "Thu"
+        fridayLabel.text = "Fri"
+        saturdayLabel.text = "Sat"
+        
+        cancelButton.layer.borderWidth = 1.0
+        cancelButton.layer.borderColor = UIColor.init(red: 0.0/255.0, green: 158.0/255.0, blue: 73.0/255.0, alpha: 1.0).cgColor
+        
+        shadowView.layer.shadowColor   = UIColor.black.cgColor
+        shadowView.layer.shadowOffset  = CGSize.init(width: 0, height: 0)
+        shadowView.layer.shadowOpacity = 0.1
+        shadowView.layer.masksToBounds = false
+        
+        let shadowInsets = UIEdgeInsets(top: 0, left: 0, bottom: -1.5, right: 0)
+        let shadowPath = UIBezierPath(rect: shadowView.bounds.inset(by: shadowInsets))
+        shadowView.layer.shadowPath = shadowPath.cgPath
+    }
+    
     // MARK: Override method
     func maxYear() -> NSInteger {
         return NSIntegerMax
@@ -159,7 +236,7 @@ class CalendarViewController: UIViewController,UICollectionViewDelegate,UICollec
         
         var cell:CalendarCollectionViewCell = calendarCollectionView.dequeueReusableCell(withReuseIdentifier: cellIdentifier, for: indexPath) as! CalendarCollectionViewCell
         
-        let monthModel:CalendarMonthModel = calendarModels[indexPath.section] as! CalendarMonthModel
+        let monthModel:CalendarMonthModel = calendarModels[indexPath.section]
         
         let row:NSInteger = indexPath.row
         

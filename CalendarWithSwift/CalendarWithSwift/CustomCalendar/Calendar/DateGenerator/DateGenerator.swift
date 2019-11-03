@@ -8,17 +8,10 @@
 
 import Foundation
 
-//class XXX {
-//
-//    class func xxx() {
-//
-//    }
-//}
-
 struct DateGenerator {
     
     static func getDateFrom(year:Int, month:Int, day: Int) -> Date! {
-        let calendar = Calendar.current
+        let calendar = Calendar.autoupdatingCurrent
         
         var components = DateComponents.init()
         components.year = year
@@ -43,15 +36,6 @@ struct DateGenerator {
         return components
     }
     
-    //objC
-//    static func getMonthsNameArray() -> Array<String> {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.locale = Locale(identifier: "en_US")
-//
-//        return dateFormatter.shortMonthSymbols as Array<String>
-//    }
-    
-    //Swift
     static func getMonthsNameArray() -> [String] {
         
         let dateFormatter = DateFormatter()
